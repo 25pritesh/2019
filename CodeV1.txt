@@ -1,0 +1,49 @@
+#matplotlib inline
+import pandas as pd
+from pandas import ExcelWriter
+from pandas import ExcelFile
+import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
+#import warnings
+#warnings.filterwarnings("../ignore")
+#plt.plot([1,2,3,4])
+
+
+def Output_Excel(filename,outputfile):
+    df= pd.read_excel(filename, sheet_name="test_data")
+    
+    #code for expected output1
+    col1= df.columns[1]
+    col2=df.columns[2] 
+    col3=df.columns[0]
+    
+    
+    df1 = df.groupby([col1]).size().reset_index(name = 'No of times they appear').rename(columns={col1:'Unqiue_Nodes'})
+    print(df.Proc_Code)
+    df2 = df.groupby([col2]).size().reset_index(name = 'No of times they appear').rename(columns={col2:'Unqiue_Nodes'})
+    df3 = pd.concat([df1,df2],sort=False) 
+    #print(df3) 
+    
+    #code for expected output2
+    df4 = df.groupby([col1,col2]).size().reset_index(name='No. of Times col1 and col2 appear together')
+    #print(df1)
+    df5 = df.groupby([col1,col2])[[col3]].sum().rename(columns={col3:'Total Amount'}).reset_index()
+    #print(df5)
+    df6=pd.merge(df4,df5, how='inner', on=[col1,col2], left_on=None, right_on=None, left_index=False, right_index=False, sort=False)
+    #print(df6)
+    
+    #code to write dataframe to available excel sheet   
+    writer = pd.ExcelWriter(outputfile)
+    df3.to_excel(writer,'Expected Output 1',index=False)
+    df6.to_excel(writer,'Expected Output 2',index=False)
+    writer.save()
+    G=nx.from_pandas_edgelist(df, source=col1, target=col2, edge_attr=True)
+    #G.add_edge(col1,col2)
+    nx.draw(G, with_labels=True)
+    plt.show()
+    
+    #df.plot(kind='line',x=col1,y=col2,color='red')
+    #plt.show()
+
+Output_Excel("C:\Anvesha_Backup\Presales\Data Science and Analytics\DataScience_Solution_Anvesha\ClaimsData1.3.xlsx","C:\Anvesha_Backup\Presales\Data Science and Analytics\DataScience_Solution_Anvesha\Sample_Output_1.xlsx")
